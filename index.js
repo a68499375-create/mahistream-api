@@ -56,7 +56,7 @@ function safeEq(a, b) {
   if (ba.length !== bb.length) return false;
   return crypto.timingSafeEqual(ba, bb);
 }
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "843035088451-oftajg1gqg6e2tks7gp0tfuu27028769.apps.googleusercontent.com";
 
 // ── PKCE Login States ─────────────────────────────────────────────
 const loginStates = new Map();
@@ -1814,7 +1814,7 @@ app.post("/api/auth/google", async (req, res) => {
   if (!rateLimit('auth:' + req.ip, 20)) return res.status(429).json({ error: 'Terlalu banyak percobaan. Coba lagi nanti.' });
   try {
     const { credential, clientId } = req.body;
-    const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
+    const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "843035088451-oftajg1gqg6e2tks7gp0tfuu27028769.apps.googleusercontent.com";
     if (!credential) return res.status(400).json({ error: "Credential diperlukan" });
 
     const payload = await fetchJson(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
@@ -1979,7 +1979,7 @@ app.use((err, req, res, next) => {
 
 // ── Config ──────────────────────────────────────────────────────
 app.get("/api/config", (req, res) => {
-  const gcId = process.env.GOOGLE_CLIENT_ID || "";
+  const gcId = process.env.GOOGLE_CLIENT_ID || "843035088451-oftajg1gqg6e2tks7gp0tfuu27028769.apps.googleusercontent.com";
   const m = readMaintenance();
   res.json({ googleClientId: gcId, maintenance: m.active || DB.maintenance === true, maintenanceMessage: m.message, khususPassword: DB.khusus_password || "animebokep" });
 });
