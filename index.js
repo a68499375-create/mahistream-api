@@ -193,19 +193,33 @@ if (fs.existsSync(SESSION_PATH)) {
   stringSession = new StringSession(fs.readFileSync(SESSION_PATH, "utf-8"));
 }
 
-const tlClient = new TelegramClient(stringSession, TL_API_ID, TL_API_HASH, {
+let tlClient = new TelegramClient(stringSession, TL_API_ID, TL_API_HASH, {
   connectionRetries: 5,
 });
 
 (async () => {
-  try {
-    await tlClient.start({
-      botAuthToken: TL_BOT_TOKEN,
-    });
-    console.log("✓ Telegram MTProto Client connected.");
-    fs.writeFileSync(SESSION_PATH, tlClient.session.save());
-  } catch (error) {
-    console.error("Failed to connect Telegram Client:", error);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await tlClient.start({
+        botAuthToken: TL_BOT_TOKEN,
+      });
+      console.log("✓ Telegram MTProto Client connected.");
+      fs.writeFileSync(SESSION_PATH, tlClient.session.save());
+      return;
+    } catch (error) {
+      const msg = (error && (error.errorMessage || error.message)) || "";
+      if (msg.includes("AUTH_KEY_DUPLICATED") && attempt < 2) {
+        console.warn("AUTH_KEY_DUPLICATED — regenerating session, attempt " + (attempt + 1));
+        try { if (fs.existsSync(SESSION_PATH)) fs.unlinkSync(SESSION_PATH); } catch (e) {}
+        stringSession = new StringSession("");
+        tlClient = new TelegramClient(stringSession, TL_API_ID, TL_API_HASH, {
+          connectionRetries: 5,
+        });
+        continue;
+      }
+      console.error("Failed to connect Telegram Client:", error);
+      return;
+    }
   }
 })();
 
