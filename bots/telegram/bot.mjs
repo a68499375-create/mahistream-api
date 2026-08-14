@@ -1194,12 +1194,24 @@ async function poll() {
               'last — 5 tontonan terakhir\n' +
               '\n== INFO ==\n' +
               'stats — statistik (total anime/request)\n' +
+              'changelog — log perubahan versi\n' +
               'help — bantuan lengkap\n' +
               'menu — tampilkan menu ini\n' +
               '\n== OWNER ONLY ==\n' +
               'broadcast <pesan> — kirim ke semua user\n' +
               'cekbolong — deteksi anime episode bolong';
             await sendUser(msg.chat.id, menu);
+          } else if (txt.toLowerCase() === 'changelog') {
+            const cl = 'CHANGELOG MAHISTREAM v2.1.0\n\n' +
+              '- Server dipindah ke cloud baru (Railway), lebih cepat & stabil\n' +
+              '- Login wajib pakai akun Google (tanpa akun tamu)\n' +
+              '- Halaman detail anime diperbaiki, tidak error lagi\n' +
+              '- Mode offline diperbaiki, unduhan bisa disimpan ke HP/laptop\n' +
+              '- Maintenance mode realtime, akun pemilik/admin/dev bebas saat maintenance\n' +
+              '- Bot Telegram & Bot Discord resmi aktif\n' +
+              '- Tampilan dibersihkan, logo resmi tanpa emoji\n' +
+              '- Semua versi diseragamkan ke 2.1.0 (aplikasi & web)';
+            await sendUser(msg.chat.id, cl);
           } else if (txt.toLowerCase().startsWith('request ')) {
             const name = txt.slice(8).trim();
             if (name) {

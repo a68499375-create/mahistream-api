@@ -82,6 +82,7 @@ add(new SlashCommandBuilder().setName('embed').setDescription('Buat embed custom
 add(new SlashCommandBuilder().setName('say').setDescription('Bot mengirim pesan (admin)').addStringOption(o => o.setName('message').setDescription('Pesan').setRequired(true)));
 add(new SlashCommandBuilder().setName('timer').setDescription('Reminder di channel').addIntegerOption(o => o.setName('minutes').setDescription('Menit').setRequired(true)).addStringOption(o => o.setName('text').setDescription('Pesan').setRequired(true)));
 add(new SlashCommandBuilder().setName('randomanime').setDescription('Rekomendasi anime acak'));
+add(new SlashCommandBuilder().setName('changelog').setDescription('Log perubahan versi MahiStream'));
 
 const TICKET_CATEGORIES = [
   { value: 'Bantuan Umum', label: '🎫 Bantuan Umum', description: 'Pertanyaan seputar server/MahiStream' },
@@ -527,7 +528,22 @@ client.on(Events.InteractionCreate, async (interaction) => {
         try {
           const r = await createTicket(interaction, 'Bantuan Umum', 'Command /ticket');
           return interaction.reply({ content: r.ok ? `✅ Ticket dibuat: <#${r.id}>\nTopik: ${reason}` : r.msg, ephemeral: true });
-        } catch (e) {
+    if (commandName === 'changelog') {
+      const cl = [
+        'Server dipindah ke cloud baru (Railway), lebih cepat & stabil',
+        'Login wajib pakai akun Google (tanpa akun tamu)',
+        'Halaman detail anime diperbaiki, tidak error lagi',
+        'Mode offline diperbaiki, unduhan bisa disimpan ke HP/laptop',
+        'Maintenance mode realtime, akun pemilik/admin/dev bebas saat maintenance',
+        'Bot Telegram & Bot Discord resmi aktif',
+        'Tampilan dibersihkan, logo resmi tanpa emoji',
+        'Semua versi diseragamkan ke 2.1.0 (aplikasi & web)'
+      ].map(x => '- ' + x).join('\n');
+      const embed = new EmbedBuilder().setColor(Colors.Gold).setTitle('Changelog MahiStream v2.1.0')
+        .setDescription(cl).setFooter({ text: 'MahiStream • Agustus 2026' });
+      return interaction.reply({ embeds: [embed] });
+    }
+  } catch (e) {
           return interaction.reply({ content: '❌ Gagal membuat tiket: ' + e.message, ephemeral: true });
         }
       }
