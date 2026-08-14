@@ -2049,6 +2049,10 @@ function startSync(source, auto) {
     const j = DB.sync_jobs.find(x => x.id === job.id);
     if (j) { j.status = code === 0 ? "done" : "error"; j.finishedAt = new Date().toISOString(); j.output = out.slice(-2000); }
     save();
+    if (code === 0) {
+      load();
+      console.log("[SYNC] DB dimuat ulang dari file — konten baru aktif tanpa restart");
+    }
     console.log(`[SYNC] ${source} ${j ? j.status : code} (${out.length} chars)`);
   });
   return job;
