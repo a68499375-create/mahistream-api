@@ -4,3 +4,4 @@ node_modules/
 .env
 backups/
 fcm-key.json
+db.json.bak.*

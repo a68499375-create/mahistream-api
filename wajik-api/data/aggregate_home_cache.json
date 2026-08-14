@@ -1,0 +1,73 @@
+{
+  "ts": 1740000000000,
+  "data": {
+    "ongoing": {
+      "animeList": [
+        { "animeId": "one-piece-1128", "title": "One Piece", "poster": "https://cdn.kuramanime.blog/img/series/one-piece.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/one-piece", "score": "8.9" },
+        { "animeId": "solo-leveling-2", "title": "Solo Leveling Season 2: Arise from the Shadow", "poster": "https://cdn.kuramanime.blog/img/series/solo-leveling-2.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/solo-leveling-2", "score": "8.7" },
+        { "animeId": "dandadan-2024", "title": "Dandadan", "poster": "https://cdn.kuramanime.blog/img/series/dandadan.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/dandadan", "score": "8.6" },
+        { "animeId": "blue-box-2024", "title": "Blue Box", "poster": "https://cdn.kuramanime.blog/img/series/blue-box.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/blue-box", "score": "8.3" },
+        { "animeId": "rezero-3rd-season", "title": "Re:Zero kara Hajimeru Isekai Seikatsu 3rd Season", "poster": "https://cdn.kuramanime.blog/img/series/rezero-3.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/rezero-3", "score": "8.5" },
+        { "animeId": "bleach-tybw-cour3", "title": "Bleach: Sennen Kessen Hen - Soukoku Tan", "poster": "https://cdn.kuramanime.blog/img/series/bleach-tybw-cour3.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/bleach-tybw-cour3", "score": "9.1" },
+        { "animeId": "shangri-la-frontier-2nd", "title": "Shangri-La Frontier 2nd Season", "poster": "https://cdn.kuramanime.blog/img/series/shangri-la-frontier-2.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/shangri-la-frontier-2", "score": "8.2" },
+        { "animeId": "oshi-no-ko-2nd", "title": "Oshi no Ko Season 2", "poster": "https://cdn.kuramanime.blog/img/series/oshi-no-ko-2.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/oshi-no-ko-2", "score": "8.8" },
+        { "animeId": "kaiju-no-8", "title": "Kaiju No. 8", "poster": "https://cdn.kuramanime.blog/img/series/kaiju-no-8.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/kaiju-no-8", "score": "8.4" },
+        { "animeId": "wind-breaker-2024", "title": "Wind Breaker", "poster": "https://cdn.kuramanime.blog/img/series/wind-breaker.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/wind-breaker", "score": "8.1" },
+        { "animeId": "spy-x-family-season-2", "title": "Spy x Family Season 2", "poster": "https://cdn.kuramanime.blog/img/series/spy-x-family-2.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/spy-x-family-2", "score": "8.6" },
+        { "animeId": "my-hero-academia-s7", "title": "Boku no Hero Academia Season 7", "poster": "https://cdn.kuramanime.blog/img/series/my-hero-academia-s7.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/my-hero-academia-s7", "score": "8.3" },
+        { "animeId": "kimetsu-no-yaiba-hashira-geiko", "title": "Kimetsu no Yaiba: Hashira Geiko Hen", "poster": "https://cdn.kuramanime.blog/img/series/kimetsu-hashira.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/kimetsu-hashira", "score": "8.7" },
+        { "animeId": "tower-of-god-season-2", "title": "Tower of God Season 2", "poster": "https://cdn.kuramanime.blog/img/series/tower-of-god-2.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/tower-of-god-2", "score": "7.9" },
+        { "animeId": "shingeki-no-kyojin-final", "title": "Shingeki no Kyojin: The Final Season", "poster": "https://cdn.kuramanime.blog/img/series/aot-final.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/aot-final", "score": "9.3" },
+        { "animeId": "jujutsu-kaisen-s2", "title": "Jujutsu Kaisen Season 2", "poster": "https://cdn.kuramanime.blog/img/series/jujutsu-kaisen-s2.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/jujutsu-kaisen-s2", "score": "9.0" },
+        { "animeId": "frieren", "title": "Sousou no Frieren", "poster": "https://cdn.kuramanime.blog/img/series/frieren.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/frieren", "score": "9.2" },
+        { "animeId": "mushoku-tensei-s2", "title": "Mushoku Tensei Season 2", "poster": "https://cdn.kuramanime.blog/img/series/mushoku-tensei-2.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/mushoku-tensei-2", "score": "8.5" },
+        { "animeId": "kage-no-jitsuryokusha-s2", "title": "Kage no Jitsuryokusha ni Naritakute! Season 2", "poster": "https://cdn.kuramanime.blog/img/series/kage-s2.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/kage-s2", "score": "8.4" },
+        { "animeId": "dr-stone-s3", "title": "Dr. Stone: New World", "poster": "https://cdn.kuramanime.blog/img/series/dr-stone-s3.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/dr-stone-s3", "score": "8.2" },
+        { "animeId": "chainsaw-man", "title": "Chainsaw Man", "poster": "https://cdn.kuramanime.blog/img/series/chainsaw-man.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/chainsaw-man", "score": "8.7" },
+        { "animeId": "hells-paradise", "title": "Hell's Paradise: Jigokuraku", "poster": "https://cdn.kuramanime.blog/img/series/hells-paradise.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/hells-paradise", "score": "8.3" },
+        { "animeId": "vinland-saga-s2", "title": "Vinland Saga Season 2", "poster": "https://cdn.kuramanime.blog/img/series/vinland-saga-2.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/vinland-saga-2", "score": "8.9" },
+        { "animeId": "spy-x-family", "title": "Spy x Family", "poster": "https://cdn.kuramanime.blog/img/series/spy-x-family.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/spy-x-family", "score": "8.5" },
+        { "animeId": "bocchi-the-rock", "title": "Bocchi the Rock!", "poster": "https://cdn.kuramanime.blog/img/series/bocchi-the-rock.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/bocchi-the-rock", "score": "8.6" },
+        { "animeId": "mob-psycho-100-s3", "title": "Mob Psycho 100 Season 3", "poster": "https://cdn.kuramanime.blog/img/series/mob-psycho-100-s3.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/mob-psycho-100-s3", "score": "8.8" },
+        { "animeId": "make- heroine-ga", "title": "Make Heroine ga Oosugiru!", "poster": "https://cdn.kuramanime.blog/img/series/make-heroine.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/make-heroine", "score": "8.0" },
+        { "animeId": "2-5-jigen-no-ririsa", "title": "2.5 Jigen no Ririsa", "poster": "https://cdn.kuramanime.blog/img/series/2-5-jigen.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/2-5-jigen", "score": "7.8" },
+        { "animeId": "kimetsu-no-yaiba-movie", "title": "Kimetsu no Yaiba: Infinity Castle", "poster": "https://cdn.kuramanime.blog/img/series/kimetsu-infinity.jpg", "episodes": "Ongoing", "source": "kuramanime", "url": "/anime/kimetsu-infinity", "score": "9.0" },
+        { "animeId": "dungeon-meshi", "title": "Dungeon Meshi", "poster": "https://cdn.kuramanime.blog/img/series/dungeon-meshi.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/dungeon-meshi", "score": "8.4" }
+      ]
+    },
+    "completed": {
+      "animeList": [
+        { "animeId": "shingeki-no-kyojin-final", "title": "Shingeki no Kyojin: The Final Season", "poster": "https://cdn.kuramanime.blog/img/series/aot-final.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/aot-final", "score": "9.3" },
+        { "animeId": "jujutsu-kaisen-s2", "title": "Jujutsu Kaisen Season 2", "poster": "https://cdn.kuramanime.blog/img/series/jujutsu-kaisen-s2.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/jujutsu-kaisen-s2", "score": "9.0" },
+        { "animeId": "frieren", "title": "Sousou no Frieren", "poster": "https://cdn.kuramanime.blog/img/series/frieren.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/frieren", "score": "9.2" },
+        { "animeId": "mushoku-tensei-s2", "title": "Mushoku Tensei Season 2", "poster": "https://cdn.kuramanime.blog/img/series/mushoku-tensei-2.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/mushoku-tensei-2", "score": "8.5" },
+        { "animeId": "kage-no-jitsuryokusha-s2", "title": "Kage no Jitsuryokusha ni Naritakute! Season 2", "poster": "https://cdn.kuramanime.blog/img/series/kage-s2.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/kage-s2", "score": "8.4" },
+        { "animeId": "dr-stone-s3", "title": "Dr. Stone: New World", "poster": "https://cdn.kuramanime.blog/img/series/dr-stone-s3.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/dr-stone-s3", "score": "8.2" },
+        { "animeId": "chainsaw-man", "title": "Chainsaw Man", "poster": "https://cdn.kuramanime.blog/img/series/chainsaw-man.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/chainsaw-man", "score": "8.7" },
+        { "animeId": "hells-paradise", "title": "Hell's Paradise: Jigokuraku", "poster": "https://cdn.kuramanime.blog/img/series/hells-paradise.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/hells-paradise", "score": "8.3" },
+        { "animeId": "vinland-saga-s2", "title": "Vinland Saga Season 2", "poster": "https://cdn.kuramanime.blog/img/series/vinland-saga-2.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/vinland-saga-2", "score": "8.9" },
+        { "animeId": "spy-x-family", "title": "Spy x Family", "poster": "https://cdn.kuramanime.blog/img/series/spy-x-family.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/spy-x-family", "score": "8.5" },
+        { "animeId": "bocchi-the-rock", "title": "Bocchi the Rock!", "poster": "https://cdn.kuramanime.blog/img/series/bocchi-the-rock.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/bocchi-the-rock", "score": "8.6" },
+        { "animeId": "mob-psycho-100-s3", "title": "Mob Psycho 100 Season 3", "poster": "https://cdn.kuramanime.blog/img/series/mob-psycho-100-s3.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/mob-psycho-100-s3", "score": "8.8" },
+        { "animeId": "dungeon-meshi", "title": "Dungeon Meshi", "poster": "https://cdn.kuramanime.blog/img/series/dungeon-meshi.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/dungeon-meshi", "score": "8.4" },
+        { "animeId": "steins-gate", "title": "Steins;Gate", "poster": "https://cdn.kuramanime.blog/img/series/steins-gate.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/steins-gate", "score": "9.1" },
+        { "animeId": "fullmetal-alchemist-brotherhood", "title": "Fullmetal Alchemist: Brotherhood", "poster": "https://cdn.kuramanime.blog/img/series/fmab.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/fmab", "score": "9.4" },
+        { "animeId": "code-geass", "title": "Code Geass: Lelouch of the Rebellion", "poster": "https://cdn.kuramanime.blog/img/series/code-geass.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/code-geass", "score": "8.9" },
+        { "animeId": "death-note", "title": "Death Note", "poster": "https://cdn.kuramanime.blog/img/series/death-note.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/death-note", "score": "8.6" },
+        { "animeId": "naruto-shippuden", "title": "Naruto Shippuden", "poster": "https://cdn.kuramanime.blog/img/series/naruto-shippuden.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/naruto-shippuden", "score": "8.3" },
+        { "animeId": "one-punch-man-s1", "title": "One Punch Man", "poster": "https://cdn.kuramanime.blog/img/series/one-punch-man.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/one-punch-man", "score": "8.7" },
+        { "animeId": "kuroko-no-basket", "title": "Kuroko no Basket", "poster": "https://cdn.kuramanime.blog/img/series/kuroko-basket.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/kuroko-basket", "score": "8.5" },
+        { "animeId": "haikyuu", "title": "Haikyuu!!", "poster": "https://cdn.kuramanime.blog/img/series/haikyuu.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/haikyuu", "score": "8.8" },
+        { "animeId": "hunter-x-hunter", "title": "Hunter x Hunter (2011)", "poster": "https://cdn.kuramanime.blog/img/series/hunter-x-hunter.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/hunter-x-hunter", "score": "9.0" },
+        { "animeId": "gintama", "title": "Gintama", "poster": "https://cdn.kuramanime.blog/img/series/gintama.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/gintama", "score": "9.2" },
+        { "animeId": "monster", "title": "Monster", "poster": "https://cdn.kuramanime.blog/img/series/monster.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/monster", "score": "8.9" },
+        { "animeId": "cowboy-bebop", "title": "Cowboy Bebop", "poster": "https://cdn.kuramanime.blog/img/series/cowboy-bebop.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/cowboy-bebop", "score": "8.9" },
+        { "animeId": "samurai-champloo", "title": "Samurai Champloo", "poster": "https://cdn.kuramanime.blog/img/series/samurai-champloo.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/samurai-champloo", "score": "8.6" },
+        { "animeId": "parasyte", "title": "Parasyte: The Maxim", "poster": "https://cdn.kuramanime.blog/img/series/parasyte.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/parasyte", "score": "8.4" },
+        { "animeId": "psycho-pass", "title": "Psycho-Pass", "poster": "https://cdn.kuramanime.blog/img/series/psycho-pass.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/psycho-pass", "score": "8.4" },
+        { "animeId": "fate-zero", "title": "Fate/Zero", "poster": "https://cdn.kuramanime.blog/img/series/fate-zero.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/fate-zero", "score": "8.5" },
+        { "animeId": "houseki-no-kuni", "title": "Houseki no Kuni", "poster": "https://cdn.kuramanime.blog/img/series/houseki.jpg", "episodes": "Completed", "source": "kuramanime", "url": "/anime/houseki", "score": "8.3" }
+      ]
+    }
+  }
+}

@@ -11,6 +11,7 @@ import { Api, TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions/index.js";
 import bigInt from "big-integer";
 import admin from "firebase-admin";
+import { spawn } from "child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = process.env.DATA_DIR || __dirname;
@@ -70,6 +71,7 @@ setInterval(() => {
 
 app.use(cors({ origin: corsOrigin, credentials: true }));
 app.use(express.json({ limit: "10mb" }));
+app.disable("x-powered-by");
 
 // ── Simple Rate Limiter ──────────────────────────────────────────
 const rateMap = new Map();
@@ -111,7 +113,7 @@ function logActivity(userId, action, req) {
 // ── Auth Middleware ───────────────────────────────────────────────
 app.use("/api/", (req, res, next) => {
   // Public paths: always allowed
-  const publicPaths = ["/config","/auth/register","/auth/login","/auth/google","/auth/link","/auth/me","/auth/init-login","/auth/callback","/auth/poll-login"];
+  const publicPaths = ["/config","/auth/register","/auth/login","/auth/google","/auth/link","/auth/me","/auth/init-login","/auth/callback","/auth/poll-login","/khusus/unlock"];
   const isPublic = publicPaths.some(p => req.path === p || req.path.startsWith(p + "/"));
   if (isPublic || req.path.startsWith("/telegram/") || req.method === "OPTIONS") return next();
   // GET requests: private endpoints require auth
@@ -451,6 +453,8 @@ let DB = {
   reports: [],
   chats: [],
   chatMessages: [],
+  khusus_password: "animebokep",
+  sync_jobs: [],
 };
 
 function save() {
@@ -566,9 +570,26 @@ function parseKhusus(k) {
   return { ...k, gdrive_links: gd, episodeList, episode_count: episodeList.length, khusus: true };
 }
 
+// ── Khusus access gate (password-gated content) ──────────────────
+const KKHUSUS_SECRET = process.env.KKHUSUS_SECRET || "mahistream-khusus-secret-v1";
+function khususPassword() { return String(DB.khusus_password || "animebokep"); }
+function khususToken(pw) { return crypto.createHmac("sha256", KKHUSUS_SECRET).update(String(pw || "")).digest("hex"); }
+function khususUnlocked(req) {
+  const pw = khususPassword();
+  const t = req.headers["x-khusus-token"];
+  if (t && safeEq(String(t), khususToken(pw))) return true;
+  const p = req.headers["x-khusus-pass"];
+  if (p && safeEq(String(p), pw)) return true;
+  return false;
+}
+function khususLocked(res) {
+  return res.status(403).json({ error: "khusus_locked", message: "Konten khusus terkunci. Masukkan password khusus terlebih dahulu." });
+}
+
 // ── Anime ────────────────────────────────────────────────────────
 app.get("/api/anime", (req, res) => {
   try {
+    if (!rateLimit("anime:" + req.ip, 120)) return res.status(429).json({ error: "Terlalu banyak permintaan. Coba lagi nanti." });
     let list = [...DB.anime];
     const { q, genre, status, sort, page, limit, khusus, aired_from, aired_to } = req.query;
     if (khusus === "true") list = list.filter(a => a.khusus === true);
@@ -603,6 +624,7 @@ app.get("/api/anime/:id", (req, res) => {
   if (a) return res.json(a);
   const k = DB.khusus.find(x => x.id === normalizeKhususId(req.params.id));
   if (!k) return res.status(404).json({ error: "Not found" });
+  if (!khususUnlocked(req)) return khususLocked(res);
   res.json(parseKhusus(k));
 });
 
@@ -611,7 +633,10 @@ app.get("/api/episodes/:animeId", (req, res) => {
   const eps = DB.episodes.filter(e => e.anime_id === req.params.animeId).sort((a, b) => a.number - b.number).map(normalizeEp);
   if (eps.length > 0) return res.json(eps);
   const k = DB.khusus.find(x => x.id === normalizeKhususId(req.params.animeId));
-  if (k) return res.json(parseKhusus(k).episodeList);
+  if (k) {
+    if (!khususUnlocked(req)) return khususLocked(res);
+    return res.json(parseKhusus(k).episodeList);
+  }
   res.json([]);
 });
 
@@ -1206,14 +1231,26 @@ io.on("connection", (socket) => {
 });
 
 // ── Khusus ───────────────────────────────────────────────────────
+app.post("/api/khusus/unlock", (req, res) => {
+  try {
+    if (!rateLimit("kunlock:" + req.ip, 10)) return res.status(429).json({ error: "Terlalu banyak percobaan. Coba lagi nanti." });
+    const { password } = req.body || {};
+    if (!password) return res.status(400).json({ error: "Password wajib diisi" });
+    if (!safeEq(String(password), khususPassword())) return res.status(403).json({ error: "khusus_locked", message: "Password salah" });
+    res.json({ ok: true, token: khususToken(khususPassword()) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 app.get("/api/khusus/:id", (req, res) => {
   const k = DB.khusus.find(x => x.id === normalizeKhususId(req.params.id));
   if (!k) return res.status(404).json({ error: "Not found" });
+  if (!khususUnlocked(req)) return khususLocked(res);
   res.json(parseKhusus(k));
 });
 
 app.get("/api/khusus", (req, res) => {
   try {
+    if (!khususUnlocked(req)) return khususLocked(res);
     const items = DB.khusus.map(k => {
       const item = { ...k };
       let links = item.gdrive_links || item.gdrive_link || [];
@@ -1997,6 +2034,55 @@ app.get("*", (req, res, next) => {
   next();
 });
 
+// ── Sync wajik-api (scraper) ────────────────────────────────────
+const SYNC_SCRIPT = path.join(__dirname, "sync-wajik.cjs");
+const SYNC_SOURCES = ["kuramanime", "nekopoi", "otakudesu"];
+function startSync(source, auto) {
+  const job = { id: Date.now() + Math.floor(Math.random() * 1000), source, status: "running", auto: !!auto, startedAt: new Date().toISOString(), finishedAt: null, stats: null };
+  DB.sync_jobs = (DB.sync_jobs || []).concat(job).slice(-20);
+  save();
+  const child = spawn(process.execPath, [SYNC_SCRIPT, source], { cwd: __dirname, env: { ...process.env }, stdio: ["ignore", "pipe", "pipe"] });
+  let out = "";
+  child.stdout.on("data", (d) => { out += d; });
+  child.stderr.on("data", (d) => { out += d; });
+  child.on("close", (code) => {
+    const j = DB.sync_jobs.find(x => x.id === job.id);
+    if (j) { j.status = code === 0 ? "done" : "error"; j.finishedAt = new Date().toISOString(); j.output = out.slice(-2000); }
+    save();
+    console.log(`[SYNC] ${source} ${j ? j.status : code} (${out.length} chars)`);
+  });
+  return job;
+}
+app.get("/api/admin/sync", (req, res) => {
+  try {
+    if (!safeEq(req.headers["x-admin-key"], ADMIN_PW) && (!req.user || req.user.role !== 'dev')) return res.status(403).json({ error: "Unauthorized" });
+    res.json({ jobs: DB.sync_jobs || [] });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.post("/api/admin/sync", (req, res) => {
+  try {
+    if (!safeEq(req.headers["x-admin-key"], ADMIN_PW) && (!req.user || req.user.role !== 'dev')) return res.status(403).json({ error: "Unauthorized" });
+    const source = String(req.body?.source || "all");
+    const sources = source === "all" ? SYNC_SOURCES : [source];
+    if (sources.some(s => !SYNC_SOURCES.includes(s))) return res.status(400).json({ error: "source tidak valid" });
+    const running = (DB.sync_jobs || []).some(j => j.status === "running");
+    if (running) return res.status(409).json({ error: "Sync sedang berjalan" });
+    const jobs = sources.map(s => startSync(s, false));
+    res.json({ message: "Sync dimulai", jobs: jobs.map(j => ({ id: j.id, source: j.source, status: j.status })) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+async function autoSyncLoop() {
+  const running = (DB.sync_jobs || []).some(j => j.status === "running");
+  if (running) return;
+  const last = {};
+  for (const j of (DB.sync_jobs || [])) { if (j.status === "done" && j.source) last[j.source] = Math.max(last[j.source] || 0, new Date(j.finishedAt || 0).getTime()); }
+  const now = Date.now();
+  for (const s of SYNC_SOURCES) {
+    if (now - (last[s] || 0) > 11 * 60 * 60 * 1000) startSync(s, true);
+  }
+}
+setInterval(autoSyncLoop, 30 * 60 * 1000);
+
 // ── Global error handler ──────────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error("EXPRESS ERROR:", err?.message || err, err?.stack?.split("\n").slice(0, 3).join(" "));
@@ -2007,7 +2093,7 @@ app.use((err, req, res, next) => {
 app.get("/api/config", (req, res) => {
   const gcId = process.env.GOOGLE_CLIENT_ID || "843035088451-oftajg1gqg6e2tks7gp0tfuu27028769.apps.googleusercontent.com";
   const m = readMaintenance();
-  res.json({ googleClientId: gcId, maintenance: m.active || DB.maintenance === true, maintenanceMessage: m.message, khususPassword: DB.khusus_password || "animebokep" });
+  res.json({ googleClientId: gcId, maintenance: m.active || DB.maintenance === true, maintenanceMessage: m.message });
 });
 
 // ── Settings (public) ────────────────────────────────────────────

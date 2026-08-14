@@ -1,0 +1,1 @@
+import nekopoiScraper from './src/scrapers/nekopoi.scraper.js'; import nekopoiParser from './src/parsers/nekopoi.parser.js'; nekopoiScraper.getLatest().then(html => console.log(nekopoiParser.parseLatest(html))).catch(console.error);

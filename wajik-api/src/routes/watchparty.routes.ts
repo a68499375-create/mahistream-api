@@ -1,0 +1,20 @@
+import { Router } from "express";
+import {
+  createRoom,
+  joinRoom,
+  stateRoom,
+  updateRoom,
+  chatRoom,
+  leaveRoom,
+} from "../controllers/watchparty.controller.js";
+
+const router = Router();
+
+router.post("/create", createRoom);
+router.post("/join", joinRoom);
+router.get("/:roomId/state", stateRoom);
+router.post("/:roomId/update", updateRoom);
+router.post("/:roomId/chat", chatRoom);
+router.post("/:roomId/leave", leaveRoom);
+
+export default router;
