@@ -49,6 +49,7 @@ setInterval(() => {
   console.log(`[STATUS] ${new Date().toISOString()} connected clients: ${io.engine?.clientsCount ?? '?'}`);
 }, 30000);
 const ADMIN_PW = process.env.ADMIN_PW || "adminbaikbanget";
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "a68499375@gmail.com").split(",").map(e => String(e).trim().toLowerCase()).filter(Boolean);
 function safeEq(a, b) {
   if (typeof a !== "string" || typeof b !== "string") return a === b;
   const ba = Buffer.from(a, "utf8");
@@ -137,6 +138,7 @@ app.use("/api/", (req, res, next) => {
 // ── Maintenance mode ──────────────────────────────────────────────
 app.use("/api/", (req, res, next) => {
   if (req.path.startsWith("/admin/") || req.path.startsWith("/auth/") || req.path.startsWith("/config")) return next();
+  if (safeEq(req.headers["x-admin-key"], ADMIN_PW)) return next();
   if (!req.user) {
     const token = req.headers["x-auth-token"];
     if (token) {
@@ -1843,13 +1845,14 @@ app.post("/api/auth/google", async (req, res) => {
     const picture = payload.picture || '';
 
     let user = DB.users.find(u => u.google_id === googleId || u.email === email);
+    const isOwnerEmail = ADMIN_EMAILS.includes(String(email || "").toLowerCase());
     if (!user) {
       const userId = "u_" + crypto.randomBytes(6).toString("hex");
       const token = crypto.randomBytes(24).toString("hex");
       user = {
         id: userId, uid: userId, username: email, email,
         display_name: name, google_id: googleId, avatar: picture,
-        token, created_at: now()
+        token, created_at: now(), role: isOwnerEmail ? "dev" : "user"
       };
       DB.users.push(user);
     } else {
@@ -1857,6 +1860,7 @@ app.post("/api/auth/google", async (req, res) => {
       if (!user.google_id) user.google_id = googleId;
       if (!user.avatar) user.avatar = picture;
       user.display_name = name;
+      if (isOwnerEmail && user.role !== "dev") user.role = "dev";
     }
     save();
 
