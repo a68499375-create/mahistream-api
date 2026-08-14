@@ -1,6 +1,6 @@
 FROM node:20-alpine
 WORKDIR /app
-COPY package.json ./
+COPY bots/discord/package.json ./
 RUN npm install --omit=dev
-COPY . .
+COPY bots/discord/ ./
 CMD ["node", "bot.js"]
