@@ -190,16 +190,24 @@ const TL_API_HASH = "a0961d30eec5751d75c2e38f79eb651a";
 const TL_BOT_TOKEN = "8601089687:AAEgi7zNTLOZJYoLJgPh9Po15QFN54Zym58";
 const SESSION_PATH = path.join(__dirname, "tl_session.txt");
 
+const TL_ENABLED = process.env.TG_DISABLED !== "1";
+
 let stringSession = new StringSession("");
-if (fs.existsSync(SESSION_PATH)) {
+if (TL_ENABLED && fs.existsSync(SESSION_PATH)) {
   stringSession = new StringSession(fs.readFileSync(SESSION_PATH, "utf-8"));
 }
 
-let tlClient = new TelegramClient(stringSession, TL_API_ID, TL_API_HASH, {
-  connectionRetries: 5,
-});
+let tlClient = TL_ENABLED
+  ? new TelegramClient(stringSession, TL_API_ID, TL_API_HASH, {
+      connectionRetries: 5,
+    })
+  : null;
 
 (async () => {
+  if (!TL_ENABLED) {
+    console.log("Telegram MTProto disabled (TG_DISABLED=1).");
+    return;
+  }
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       await tlClient.start({
@@ -231,7 +239,7 @@ app.get("/api/telegram/:channel/:messageId", async (req, res) => {
     const channel = req.params.channel;
     const messageId = parseInt(req.params.messageId);
 
-    if (!tlClient.connected) {
+    if (!tlClient || !tlClient.connected) {
       return res.status(503).json({ error: "Telegram client not ready" });
     }
 
@@ -308,7 +316,7 @@ app.get("/api/tginfo/:channel/:messageId", async (req, res) => {
   try {
     const channel = req.params.channel;
     const messageId = parseInt(req.params.messageId, 10);
-    if (!tlClient.connected) return res.status(503).json({ error: "Telegram client not ready" });
+    if (!tlClient || !tlClient.connected) return res.status(503).json({ error: "Telegram client not ready" });
     const messages = await tlClient.getMessages(channel, { ids: [messageId] });
     if (!messages || messages.length === 0 || !messages[0].media || !messages[0].media.document) {
       return res.status(404).json({ error: "Video tidak ditemukan di Telegram" });
