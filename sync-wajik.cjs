@@ -6,7 +6,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const WAJIK = (process.env.WAJIK_API_URL || "http://127.0.0.1:3001").replace(/\/+$/, "");
+const WAJIK = (() => { const raw = (process.env.WAJIK_API_URL || "http://127.0.0.1:3001").trim(); return (/^https?:\/\//i.test(raw) ? raw : "https://" + raw).replace(/\/+$/, ""); })();
 const DB_PATH = process.env.DB_PATH || path.join(process.cwd(), "db.json");
 const PAGE_LIMIT = parseInt(process.env.SYNC_PAGE_LIMIT || "30", 10);
 const EP_LIMIT = parseInt(process.env.SYNC_EP_LIMIT || "0", 10);
