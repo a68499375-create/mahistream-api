@@ -163,7 +163,7 @@ if (fs.existsSync(distPath)) {
 
 // ── Scraper Proxy (wajik-anime-api) ───────────────────────────────
 const SCRAPER_BASE = (process.env.SCRAPER_BASE || "http://127.0.0.1:3001").replace(/\/$/, "");
-const SCRAPER_PATHS = ["/kuramanime", "/nekopoi", "/otakudesu", "/aggregate", "/extract-stream", "/download"];
+const SCRAPER_PATHS = ["/kuramanime", "/nekopoi", "/otakudesu", "/samehadaku", "/aggregate", "/extract", "/extract-stream", "/download", "/proxy"];
 
 function scraperProxy(req, res) {
   const target = SCRAPER_BASE + req.originalUrl.replace(/^\/api/, "");
