@@ -710,49 +710,55 @@ app.get("/api/anime", async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.get("/api/anime/:id", async (req, res) => {
-  const a = getAnimeFull(req.params.id);
+async function animeDetailHandler(req, res, id) {
+  const a = getAnimeFull(id);
   if (a) return res.json(a);
-  const k = DB.khusus.find(x => x.id === normalizeKhususId(req.params.id));
+  const k = DB.khusus.find(x => x.id === normalizeKhususId(id));
   if (k) {
     if (!khususUnlocked(req)) return khususLocked(res);
     return res.json(parseKhusus(k));
   }
   if (SCRAPER_BASE) {
     try {
-      const j = await fetchScraperJson("/kuramanime/anime/" + encodeURIComponent(req.params.id));
+      const j = await fetchScraperJson("/kuramanime/anime/" + encodeURIComponent(id));
       const d = (j && j.details) || j;
       if (d && (d.title || d.episodeList)) {
         const syn = typeof d.synopsis === "string" ? d.synopsis : (Array.isArray(d.synopsis && d.synopsis.paragraphList) ? d.synopsis.paragraphList.join(" ") : (d.synopsis && d.synopsis.text) || "");
-        const eps = (Array.isArray(d.episodeList) ? d.episodeList : []).map(e => scraperEpisodeToEp(req.params.id, e));
-        const listItem = d.animeId ? mapScraperAnime(d) : { ...mapScraperAnime({ animeId: req.params.id, title: d.title, poster: d.poster, synopsis: syn, status: d.status, score: d.score }), title_jp: d.title_jp || "", genres: Array.isArray(d.genres) ? d.genres : [] };
-        return res.json({ ...listItem, id: req.params.id, episodeList: eps });
+        const eps = (Array.isArray(d.episodeList) ? d.episodeList : []).map(e => scraperEpisodeToEp(id, e));
+        const listItem = d.animeId ? mapScraperAnime(d) : { ...mapScraperAnime({ animeId: id, title: d.title, poster: d.poster, synopsis: syn, status: d.status, score: d.score }), title_jp: d.title_jp || "", genres: Array.isArray(d.genres) ? d.genres : [] };
+        return res.json({ ...listItem, id, episodeList: eps });
       }
     } catch (e) { console.log("[scraper] /api/anime/:id fallback gagal:", e.message); }
   }
   res.status(404).json({ error: "Not found" });
-});
+}
+
+app.get("/api/anime/:id", (req, res) => animeDetailHandler(req, res, req.params.id));
+app.get("/api/anime/*", (req, res) => animeDetailHandler(req, res, req.params[0]));
 
 // ── Episodes ─────────────────────────────────────────────────────
-app.get("/api/episodes/:animeId", async (req, res) => {
-  const eps = DB.episodes.filter(e => e.anime_id === req.params.animeId).sort((a, b) => a.number - b.number).map(normalizeEp);
+async function episodesHandler(req, res, animeId) {
+  const eps = DB.episodes.filter(e => e.anime_id === animeId).sort((a, b) => a.number - b.number).map(normalizeEp);
   if (eps.length > 0) return res.json(eps);
-  const k = DB.khusus.find(x => x.id === normalizeKhususId(req.params.animeId));
+  const k = DB.khusus.find(x => x.id === normalizeKhususId(animeId));
   if (k) {
     if (!khususUnlocked(req)) return khususLocked(res);
     return res.json(parseKhusus(k).episodeList);
   }
   if (SCRAPER_BASE) {
     try {
-      const j = await fetchScraperJson("/kuramanime/anime/" + encodeURIComponent(req.params.animeId));
+      const j = await fetchScraperJson("/kuramanime/anime/" + encodeURIComponent(animeId));
       const d = (j && j.details) || j;
       if (d && Array.isArray(d.episodeList) && d.episodeList.length > 0) {
-        return res.json(d.episodeList.map(e => scraperEpisodeToEp(req.params.animeId, e)));
+        return res.json(d.episodeList.map(e => scraperEpisodeToEp(animeId, e)));
       }
     } catch (e) { console.log("[scraper] /api/episodes/:animeId fallback gagal:", e.message); }
   }
   res.json([]);
-});
+}
+
+app.get("/api/episodes/:animeId", (req, res) => episodesHandler(req, res, req.params.animeId));
+app.get("/api/episodes/*", (req, res) => episodesHandler(req, res, req.params[0]));
 
 // ── Random ───────────────────────────────────────────────────────
 app.get("/api/random", (req, res) => {
