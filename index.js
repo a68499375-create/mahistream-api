@@ -116,18 +116,29 @@ app.use("/api/", (req, res, next) => {
   const publicPaths = ["/config","/auth/register","/auth/login","/auth/google","/auth/link","/auth/me","/auth/init-login","/auth/callback","/auth/poll-login","/khusus/unlock"];
   const isPublic = publicPaths.some(p => req.path === p || req.path.startsWith(p + "/"));
   if (isPublic || req.path.startsWith("/telegram/") || req.method === "OPTIONS") return next();
-  // GET requests: private endpoints require auth
-  const privateGetPaths = ["/history","/bookmarks","/favorites","/watchlist","/comments","/reviews"];
-  const isPrivateGet = privateGetPaths.some(p => req.path === p || req.path.startsWith(p + "/"));
-  if (req.method === "GET" && !isPrivateGet && req.path !== "/user/profile") return next();
-  // POST/PUT/DELETE: require auth, UNLESS an admin key is supplied
+
+  // Attach user if token is present
+  const token = req.headers["x-auth-token"];
+  if (token) {
+    const user = DB.users.find(u => u.token === token);
+    if (user) req.user = user;
+  }
+
+  // Allow all GET requests (history, bookmarks, watchlist, favorites, comments, etc.)
+  if (req.method === "GET") return next();
+
+  // Allow anonymous history/bookmarks/watchlist/favorites interactions
+  const userContentPaths = ["/history", "/bookmarks", "/favorites", "/watchlist", "/comments", "/reviews"];
+  const isUserContent = userContentPaths.some(p => req.path === p || req.path.startsWith(p + "/"));
+  if (isUserContent) return next();
+
+  // Admin bypass
   const adminKey = req.headers["x-admin-key"];
   if (adminKey && safeEq(adminKey, ADMIN_PW)) return next();
-  const token = req.headers["x-auth-token"];
-  if (!token) return res.status(401).json({ error: "auth_required", message: "Login diperlukan" });
-  const user = DB.users.find(u => u.token === token);
-  if (!user) return res.status(401).json({ error: "auth_required", message: "Sesi habis, login ulang" });
-  req.user = user;
+
+  if (!req.user) {
+    return res.status(401).json({ error: "auth_required", message: "Login diperlukan" });
+  }
   next();
 });
 
@@ -1968,9 +1979,9 @@ app.post("/api/auth/login", (req, res) => {
 
 app.get("/api/auth/me", (req, res) => {
   const token = req.headers["x-auth-token"];
-  if (!token) return res.status(401).json({ error: "Token diperlukan" });
+  if (!token) return res.json({ user: null });
   const user = DB.users.find(u => u.token === token);
-  if (!user) return res.status(401).json({ error: "Token tidak valid" });
+  if (!user) return res.json({ user: null });
   res.json({ user: { id: user.id, username: user.username, display_name: user.display_name || user.username, role: (user.username === 'admin' ? 'dev' : (user.role || 'user')) } });
 });
 
