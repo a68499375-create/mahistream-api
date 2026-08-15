@@ -161,6 +161,88 @@ if (fs.existsSync(distPath)) {
   console.log("  Serving frontend from:", distPath);
 }
 
+// ── Scraper Proxy (wajik-anime-api) ───────────────────────────────
+const SCRAPER_BASE = (process.env.SCRAPER_BASE || "http://127.0.0.1:3001").replace(/\/$/, "");
+const SCRAPER_PATHS = ["/kuramanime", "/nekopoi", "/otakudesu", "/aggregate", "/extract-stream", "/download"];
+
+function scraperProxy(req, res) {
+  const target = SCRAPER_BASE + req.originalUrl.replace(/^\/api/, "");
+  const headers = { accept: "*/*" };
+  if (req.headers["content-type"]) headers["content-type"] = req.headers["content-type"];
+  if (req.headers["user-agent"]) headers["user-agent"] = req.headers["user-agent"];
+  if (req.headers.range) headers["range"] = req.headers.range;
+  const init = { method: req.method, headers };
+  if (req.method !== "GET" && req.method !== "HEAD") init.body = JSON.stringify(req.body || {});
+  fetch(target, init)
+    .then(async (up) => {
+      res.status(up.status);
+      for (const [k, v] of up.headers) {
+        const lk = k.toLowerCase();
+        if (lk === "content-length" || lk === "content-encoding") continue;
+        res.setHeader(k, v);
+      }
+      if (req.method === "HEAD") return res.end();
+      const reader = up.body.getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        res.write(Buffer.from(value));
+      }
+      res.end();
+    })
+    .catch((err) => {
+      if (!res.headersSent) res.status(502).json({ error: "Scraper service tidak tersedia", detail: String(err && err.message) });
+      else res.end();
+    });
+}
+
+for (const p of SCRAPER_PATHS) {
+  app.use("/api" + p, scraperProxy);
+  app.use("/api" + p + "/*", scraperProxy);
+}
+
+async function fetchScraperJson(path, timeoutMs = 25000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const r = await fetch(SCRAPER_BASE + path, { signal: ctrl.signal, headers: { accept: "*/*" } });
+    if (!r.ok) throw new Error("scraper HTTP " + r.status);
+    const j = await r.json();
+    return (j && j.data && typeof j.data === "object" && !Array.isArray(j.data)) ? j.data : j;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+function mapScraperAnime(a) {
+  return {
+    id: a.animeId || a.slug || a.id,
+    title: a.title || "",
+    title_jp: a.title_jp || a.altTitle || "",
+    poster: a.poster || "",
+    synopsis: a.synopsis || a.description || "",
+    status: a.status || "Unknown",
+    rating: a.score ? parseFloat(a.score) : 0,
+    genres: Array.isArray(a.genres) ? a.genres : [],
+    alt_titles: Array.isArray(a.altTitles) ? a.altTitles : [],
+    created_at: new Date().toISOString(),
+    scraper: true
+  };
+}
+
+function scraperEpisodeToEp(animeId, ep) {
+  const epId = ep.episodeId || ep.id || "";
+  const m = String(epId).match(/\/episode\/(\d+)/);
+  const num = m ? parseInt(m[1], 10) : parseInt(ep.number || ep.episode, 10);
+  return {
+    id: epId,
+    anime_id: animeId,
+    number: isNaN(num) ? 0 : num,
+    title: ep.title || "",
+    gdrive_links: JSON.stringify([])
+  };
+}
+
 const MAINTENANCE_FILE = path.join(DATA_DIR, "maintenance.json");
 
 function readMaintenance() {
@@ -587,10 +669,19 @@ function khususLocked(res) {
 }
 
 // ── Anime ────────────────────────────────────────────────────────
-app.get("/api/anime", (req, res) => {
+app.get("/api/anime", async (req, res) => {
   try {
     if (!rateLimit("anime:" + req.ip, 120)) return res.status(429).json({ error: "Terlalu banyak permintaan. Coba lagi nanti." });
     let list = [...DB.anime];
+    if (list.length === 0 && SCRAPER_BASE) {
+      try {
+        const j = await fetchScraperJson("/kuramanime/latest");
+        const src = (j && j.details && Array.isArray(j.details.animeList)) ? j.details.animeList : (Array.isArray(j.animeList) ? j.animeList : []);
+        list = src.map(mapScraperAnime);
+      } catch (e) {
+        console.log("[scraper] /api/anime fallback gagal:", e.message);
+      }
+    }
     const { q, genre, status, sort, page, limit, khusus, aired_from, aired_to } = req.query;
     if (khusus === "true") list = list.filter(a => a.khusus === true);
     else if (khusus === "false") list = list.filter(a => !a.khusus);
@@ -619,23 +710,46 @@ app.get("/api/anime", (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.get("/api/anime/:id", (req, res) => {
+app.get("/api/anime/:id", async (req, res) => {
   const a = getAnimeFull(req.params.id);
   if (a) return res.json(a);
   const k = DB.khusus.find(x => x.id === normalizeKhususId(req.params.id));
-  if (!k) return res.status(404).json({ error: "Not found" });
-  if (!khususUnlocked(req)) return khususLocked(res);
-  res.json(parseKhusus(k));
+  if (k) {
+    if (!khususUnlocked(req)) return khususLocked(res);
+    return res.json(parseKhusus(k));
+  }
+  if (SCRAPER_BASE) {
+    try {
+      const j = await fetchScraperJson("/kuramanime/anime/" + encodeURIComponent(req.params.id));
+      const d = (j && j.details) || j;
+      if (d && (d.title || d.episodeList)) {
+        const syn = typeof d.synopsis === "string" ? d.synopsis : (Array.isArray(d.synopsis && d.synopsis.paragraphList) ? d.synopsis.paragraphList.join(" ") : (d.synopsis && d.synopsis.text) || "");
+        const eps = (Array.isArray(d.episodeList) ? d.episodeList : []).map(e => scraperEpisodeToEp(req.params.id, e));
+        const listItem = d.animeId ? mapScraperAnime(d) : { ...mapScraperAnime({ animeId: req.params.id, title: d.title, poster: d.poster, synopsis: syn, status: d.status, score: d.score }), title_jp: d.title_jp || "", genres: Array.isArray(d.genres) ? d.genres : [] };
+        return res.json({ ...listItem, id: req.params.id, episodeList: eps });
+      }
+    } catch (e) { console.log("[scraper] /api/anime/:id fallback gagal:", e.message); }
+  }
+  res.status(404).json({ error: "Not found" });
 });
 
 // ── Episodes ─────────────────────────────────────────────────────
-app.get("/api/episodes/:animeId", (req, res) => {
+app.get("/api/episodes/:animeId", async (req, res) => {
   const eps = DB.episodes.filter(e => e.anime_id === req.params.animeId).sort((a, b) => a.number - b.number).map(normalizeEp);
   if (eps.length > 0) return res.json(eps);
   const k = DB.khusus.find(x => x.id === normalizeKhususId(req.params.animeId));
   if (k) {
     if (!khususUnlocked(req)) return khususLocked(res);
     return res.json(parseKhusus(k).episodeList);
+  }
+  if (SCRAPER_BASE) {
+    try {
+      const j = await fetchScraperJson("/kuramanime/anime/" + encodeURIComponent(req.params.animeId));
+      const d = (j && j.details) || j;
+      if (d && Array.isArray(d.episodeList) && d.episodeList.length > 0) {
+        return res.json(d.episodeList.map(e => scraperEpisodeToEp(req.params.animeId, e)));
+      }
+    } catch (e) { console.log("[scraper] /api/episodes/:animeId fallback gagal:", e.message); }
   }
   res.json([]);
 });
