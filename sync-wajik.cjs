@@ -118,7 +118,8 @@ async function syncKuramanime(DB) {
         log(`[kura] KHUSUS: ${title}`);
       } else {
         upsertAnime(DB, animeObj);
-        DB.episodes = DB.episodes.filter(e => e.anime_id !== id).concat(epOut);
+        const merged = mergeEpisodes(DB.episodes, id, epOut);
+        DB.episodes = DB.episodes.filter(e => e.anime_id !== id).concat(merged);
         stats.anime++;
         stats.episodes += epOut.length;
         log(`[kura] ${title} — ${epOut.length} eps${linkHits(epOut)}`);
@@ -254,6 +255,26 @@ async function syncOtakudesu(DB) {
 }
 
 // ── Umum ─────────────────────────────────────────────────────────
+function isManualLink(ep) {
+  try {
+    const arr = JSON.parse(ep.gdrive_links || "[]");
+    if (!Array.isArray(arr) || arr.length === 0) return false;
+    return arr.some(l => /\/api\/(gdrive|telegram)\//i.test(l.url || ""));
+  } catch { return false; }
+}
+function mergeEpisodes(all, animeId, fresh) {
+  const existing = all.filter(e => e.anime_id === animeId);
+  const freshById = new Map(fresh.map(e => [String(e.number), e]));
+  const result = [];
+  for (const old of existing) {
+    const f = freshById.get(String(old.number));
+    if (f && isManualLink(old)) result.push(old);
+  }
+  for (const f of fresh) result.push(f);
+  result.sort((a, b) => a.number - b.number);
+  return result;
+}
+
 function upsertAnime(DB, a) {
   const ex = DB.anime.find(x => x.id === a.id);
   if (ex) Object.assign(ex, a);
