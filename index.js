@@ -210,6 +210,10 @@ function scraperProxy(req, res) {
 for (const p of SCRAPER_PATHS) {
   app.use("/api" + p, scraperProxy);
   app.use("/api" + p + "/*", scraperProxy);
+  // Alias tanpa /api: frontend lama (mahistream-app 42d2060) memanggil
+  // /otakudesu/..., /aggregate/... langsung tanpa prefix /api.
+  app.use(p, scraperProxy);
+  app.use(p + "/*", scraperProxy);
 }
 
 async function fetchScraperJson(path, timeoutMs = 25000) {
