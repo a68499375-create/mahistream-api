@@ -665,7 +665,7 @@ function parseKhusus(k) {
 
 // ── Khusus access gate (password-gated content) ──────────────────
 const KKHUSUS_SECRET = process.env.KKHUSUS_SECRET || "mahistream-khusus-secret-v1";
-function khususPassword() { return String(DB.khusus_password || "animebokep"); }
+function khususPassword() { return String(DB.khusus_password || "alfathsayangkagari"); }
 function khususToken(pw) { return crypto.createHmac("sha256", KKHUSUS_SECRET).update(String(pw || "")).digest("hex"); }
 function khususUnlocked(req) {
   const pw = khususPassword();
