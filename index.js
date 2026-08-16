@@ -730,7 +730,6 @@ async function animeDetailHandler(req, res, id) {
   if (a) return res.json(a);
   const k = DB.khusus.find(x => x.id === normalizeKhususId(id));
   if (k) {
-    if (!khususUnlocked(req)) return khususLocked(res);
     return res.json(parseKhusus(k));
   }
   if (SCRAPER_BASE) {
@@ -757,7 +756,6 @@ async function episodesHandler(req, res, animeId) {
   if (eps.length > 0) return res.json(eps);
   const k = DB.khusus.find(x => x.id === normalizeKhususId(animeId));
   if (k) {
-    if (!khususUnlocked(req)) return khususLocked(res);
     return res.json(parseKhusus(k).episodeList);
   }
   if (SCRAPER_BASE) {
@@ -1379,13 +1377,11 @@ app.post("/api/khusus/unlock", (req, res) => {
 app.get("/api/khusus/:id", (req, res) => {
   const k = DB.khusus.find(x => x.id === normalizeKhususId(req.params.id));
   if (!k) return res.status(404).json({ error: "Not found" });
-  if (!khususUnlocked(req)) return khususLocked(res);
   res.json(parseKhusus(k));
 });
 
 app.get("/api/khusus", (req, res) => {
   try {
-    if (!khususUnlocked(req)) return khususLocked(res);
     const items = DB.khusus.map(k => {
       const item = { ...k };
       let links = item.gdrive_links || item.gdrive_link || [];
